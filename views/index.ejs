@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <link rel="stylesheet" href="styles.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <h2>QR Generator</h2>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <h2>Generate Your QR Code</h2>
+            
+            <div class="generator">
+                <!-- Form Section -->
+                <div class="form-container">
+                    <form action="/generate" method="POST" enctype="multipart/form-data">
+                        <label>Title</label>
+                        <input type="text" name="title" placeholder="Enter title" required>
+
+                        <label>Subtitle</label>
+                        <input type="text" name="subtitle" placeholder="Enter subtitle">
+
+                        <label>Description</label>
+                        <textarea name="description" placeholder="Enter description" required></textarea>
+
+                        <label>Select PDF</label>
+                        <input type="file" name="pdf" accept="application/pdf" required>
+
+                        <label>Upload Preview Image</label>
+                        <input type="file" name="preview" accept="image/*" required>
+
+                        <label>Choose Background Color</label>
+                        <input type="color" name="bgColor" value="#ffffff">
+
+                        <button type="submit"><i class="fas fa-qrcode"></i> Generate QR</button>
+                    </form>
+                </div>
+
+                <!-- QR Code Preview Section -->
+                <div class="qr-preview">
+                    <h3>QR Code Preview</h3>
+                    <% if (qrImage) { %>
+                        <div class="qr-card">
+                            <img src="<%= qrImage %>" alt="QR Code">
+                            <a href="<%= qrDownload %>" download="qr_code.png">
+                                <button><i class="fas fa-download"></i> Download QR</button>
+                            </a>
+                        </div>
+                    <% } else { %>
+                        <p class="placeholder">Your QR code will appear here.</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
