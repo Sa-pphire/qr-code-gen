@@ -63,7 +63,7 @@ app.post("/generate", upload.fields([{ name: "pdf" }, { name: "preview" }]), asy
     saveLandingPages();
 
     // Generate QR Code
-    const qrImage = await qr.toDataURL(landingPageUrl);
+    const qrImage = await qr.toDataURL(landingPageUrl,  { size: 20, errorCorrectionLevel: 'H' });
     res.render("index", { qrImage, qrDownload: qrImage });
   } catch (err) {
     console.error("Error processing PDF:", err);
