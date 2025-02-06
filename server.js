@@ -3,9 +3,10 @@ const qr = require("qrcode");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const sharp = require("sharp"); // Import sharp
 
 const app = express();
-const PORT = process.env.PORT
+const PORT = process.env.PORT;
 
 // JSON file to store landing page data
 const DATA_FILE = "./landingPages.json";
@@ -50,7 +51,6 @@ app.post("/generate", upload.fields([{ name: "pdf" }, { name: "preview" }]), asy
   const landingPageUrl = `${req.protocol}://${req.get("host")}/view/${pdfFilename}`;
 
   try {
-   
     // Save landing page data
     landingPages[pdfFilename] = {
       title,
@@ -62,9 +62,27 @@ app.post("/generate", upload.fields([{ name: "pdf" }, { name: "preview" }]), asy
     };
     saveLandingPages();
 
-    // Generate QR Code
-    const qrImage = await qr.toDataURL(landingPageUrl,  { size: 20, errorCorrectionLevel: 'H' });
-    res.render("index", { qrImage, qrDownload: qrImage });
+    // Generate QR Code with high resolution
+    const qrImageData = await qr.toDataURL(landingPageUrl, { size: 30, errorCorrectionLevel: 'H' });
+
+    // Convert QR code data URL to buffer and resize using sharp
+    const buffer = Buffer.from(qrImageData.split(',')[1], 'base64');
+
+    // Resize the image to 1000px width (adjust as needed)
+    const resizedQrImage = await sharp(buffer)
+      .resize(500) // Width in pixels, you can adjust it
+      .png({ quality: 100 })
+      .toBuffer();
+
+    // Save resized QR image as PNG
+    const qrDownloadPath = path.join(__dirname, "public/uploads", Date.now() + ".png");
+    await sharp(resizedQrImage).toFile(qrDownloadPath);
+
+    // Return the image URL for downloading
+    const qrDownloadUrl = `/uploads/${path.basename(qrDownloadPath)}`;
+
+    // Render the index page with the new QR image and download link
+    res.render("index", { qrImage: qrImageData, qrDownload: qrDownloadUrl });
   } catch (err) {
     console.error("Error processing PDF:", err);
     res.status(500).send("Error generating QR code and preview.");
@@ -89,7 +107,6 @@ app.get("/view/:filename", (req, res) => {
     previewImage: data.previewImage,
   });
 });
-
 
 // Start the server
 app.listen(PORT, () => {
