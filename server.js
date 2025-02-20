@@ -9,10 +9,12 @@ require("dotenv").config();
 
 const app = express();
 const PORT = process.env.PORT;
-
+console.log(process.env.MONGO_URI)
 // MongoDB Connection
-mongoose.connect(process.env.MONGO_URI);
-
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 // Define Schema for QR Code Data
 const QRCodeSchema = new mongoose.Schema({
   title: String,
